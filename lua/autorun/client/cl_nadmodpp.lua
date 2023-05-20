@@ -3,6 +3,8 @@
 -- By Nebual@nebtown.info 2012
 -- Menus designed after SpaceTech's Simple Prop Protection
 -- =================================
+local string_sub = string.sub
+
 if not NADMOD then
 	NADMOD = {}
 	NADMOD.PropOwners = {}
@@ -13,7 +15,7 @@ end
 
 local Props = NADMOD.PropOwners
 local PropNames = NADMOD.PropNames
-net.Receive("nadmod_propowners",function()
+net.Receive("nadmod_propowners", function()
 	local nameMap = {}
 	for i = 1, net.ReadUInt(8) do
 		nameMap[i] = {SteamID = net.ReadString(), Name = net.ReadString()}
@@ -69,43 +71,52 @@ function NADMOD.IsPPAdmin(ply)
 	end
 end
 
-local nadmod_overlay_convar = CreateConVar("nadmod_overlay", 2, {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED}, "0 - Disables NPP Overlay. 1 - Minimal overlay of just owner info. 2 - Includes model, entityID, class")
-local font = "ChatFont"
-local boxColor = Color(0, 0, 0, 150)
-local textColor = Color(255, 255, 255, 255)
+do
+	local draw_RoundedBox = draw.RoundedBox
+	local draw_SimpleText = draw.SimpleText
+	local surface_GetTextSize = surface.GetTextSize
+	local math_Max = math.Max
+	local string_Explode = string.Explode
+	local table_remove = table.remove
 
-hook.Add("HUDPaint", "NADMOD.HUDPaint", function()
-	local nadmod_overlay_setting = nadmod_overlay_convar:GetInt()
-	if nadmod_overlay_setting == 0 then return end
-	local tr = LocalPlayer():GetEyeTrace()
-	if not tr.HitNonWorld then return end
-	local ent = tr.Entity
-	if not IsValid( ent ) or ent:IsPlayer() then return end
+	local nadmod_overlay_convar = CreateConVar("nadmod_overlay", 2, {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED}, "0 - Disables NPP Overlay. 1 - Minimal overlay of just owner info. 2 - Includes model, entityID, class")
+	local font = "ChatFont"
+	local boxColor = Color(0, 0, 0, 150)
+	local textColor = Color(255, 255, 255, 255)
 
-	local text = "Owner: " .. (PropNames[ent:EntIndex()] or "N/A")
-	surface.SetFont(font)
-	local Width, Height = surface.GetTextSize(text)
-	local boxWidth = Width + 25
-	local boxHeight = Height + 16
-	local scrW = ScrW()
-	local scrH = ScrH() / 2 - 200
+	hook.Add("HUDPaint", "NADMOD.HUDPaint", function()
+		local nadmod_overlay_setting = nadmod_overlay_convar:GetInt()
+		if nadmod_overlay_setting == 0 then return end
+		local tr = LocalPlayer():GetEyeTrace()
+		if not tr.HitNonWorld then return end
+		local ent = tr.Entity
+		if not IsValid( ent ) or ent:IsPlayer() then return end
 
-	if nadmod_overlay_setting > 1 then
-		local text2 = "'" .. string.sub(table.remove(string.Explode("/", ent:GetModel() or "?")), 1,-5) .. "' [" .. ent:EntIndex() .. "]"
-		local text3 = ent:GetClass()
-		local w2,h2 = surface.GetTextSize(text2)
-		local w3,h3 = surface.GetTextSize(text3)
-		boxWidth = math.Max(Width,w2,w3) + 25
-		boxHeight = boxHeight + h2 + h3
-		draw.RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
-		draw.SimpleText(text, font, scrW - (Width / 2) - 20, scrH, textColor, 1, 1)
-		draw.SimpleText(text2, font, scrW - (w2 / 2) - 20, scrH + Height, textColor, 1, 1)
-		draw.SimpleText(text3, font, scrW - (w3 / 2) - 20, scrH + Height + h2, textColor, 1, 1)
-	else
-		draw.RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
-		draw.SimpleText(text, font, scrW - (Width / 2) - 20, scrH, textColor, 1, 1)
-	end
-end)
+		local text = "Owner: " .. (PropNames[ent:EntIndex()] or "N/A")
+		surface.SetFont(font)
+		local Width, Height = surface_GetTextSize(text)
+		local boxWidth = Width + 25
+		local boxHeight = Height + 16
+		local scrW = ScrW()
+		local scrH = ScrH() / 2 - 200
+
+		if nadmod_overlay_setting > 1 then
+			local text2 = "'" .. string_sub(table_remove(string_Explode("/", ent:GetModel() or "?")), 1, -5) .. "' [" .. ent:EntIndex() .. "]"
+			local text3 = ent:GetClass()
+			local w2,h2 = surface_GetTextSize(text2)
+			local w3,h3 = surface_GetTextSize(text3)
+			boxWidth = math_Max(Width,w2,w3) + 25
+			boxHeight = boxHeight + h2 + h3
+			draw_RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
+			draw_SimpleText(text, font, scrW - (Width / 2) - 20, scrH, textColor, 1, 1)
+			draw_SimpleText(text2, font, scrW - (w2 / 2) - 20, scrH + Height, textColor, 1, 1)
+			draw_SimpleText(text3, font, scrW - (w3 / 2) - 20, scrH + Height + h2, textColor, 1, 1)
+		else
+			draw_RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
+			draw_SimpleText(text, font, scrW - (Width / 2) - 20, scrH, textColor, 1, 1)
+		end
+	end)
+end
 
 function NADMOD.CleanCLRagdolls()
 	for _, v in ipairs(ents.FindByClass("class C_ClientRagdoll")) do v:SetNoDraw(true) end
@@ -213,7 +224,7 @@ function metaply:SteamID64bot()
 	if not IsValid( self ) then return end
 	if self:IsBot() then
 		-- Calculate Bot's SteamID64 according to gmod wiki
-		return 90071996842377216 + tonumber( string.sub( self:Nick(), 4) ) - 1
+		return 90071996842377216 + tonumber( string_sub( self:Nick(), 4) ) - 1
 	else
 		return self:SteamID64()
 	end
