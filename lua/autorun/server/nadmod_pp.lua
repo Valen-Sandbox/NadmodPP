@@ -1,7 +1,7 @@
 -- Nebual 2012 (nebual@nebtown.info) presents:
 -- NADMOD Prop Protection
 -- Inspired by Spacetech's Simple Prop Protection, <3's
--- Bugs? Feature requests? Email me or poke the Facepunch https://www.facepunch.com/showthread.php?t=1221183
+-- Bugs? Feature requests? Email me!
 
 if not NADMOD then
 	-- User is running without my Admin mod NADMOD, lets just copy some required initialization stuff over here
