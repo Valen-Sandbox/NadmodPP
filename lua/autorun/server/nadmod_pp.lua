@@ -26,13 +26,13 @@ if not NADMOD then
 		if not nick or nick == "" then return end
 		nick = string.lower(nick)
 		local num = tonumber(nick)
-		for _,v in pairs(player.GetAll()) do
+		for _, v in ipairs(player.GetAll()) do
 			if string.lower(v:Nick()) == nick then return v -- Exact name match
 			elseif v:UserID() == num then return v 			-- UserID match (from status)
 			end
 		end
 		-- If the above two exact searches fail, try doing a partial search
-		for _,v in pairs(player.GetAll()) do
+		for _, v in ipairs(player.GetAll()) do
 			if string.find(string.lower(v:Nick()), nick) then return v end
 		end
 	end
@@ -49,7 +49,7 @@ if not NADMOD.Props then
 	CPPI = {}
 
 	-- Copy over default settings if they aren't present in the disk's PPConfig
-	for k,v in pairs({toggle = true, use = false, adminall = true, autocdp = 0, autocdpadmins = false}) do
+	for k, v in pairs({toggle = true, use = false, adminall = true, autocdp = 0, autocdpadmins = false}) do
 		if NADMOD.PPConfig[k] == nil then NADMOD.PPConfig[k] = v end
 	end
 
@@ -104,7 +104,7 @@ function NADMOD.SendPropOwners(props, ply)
 			net.WriteString(nameMap[i].Name)
 		end
 		net.WriteUInt(count,32)
-		for k,v in pairs(props) do
+		for k, v in pairs(props) do
 			net.WriteUInt(k,16)
 			net.WriteUInt(nameMap[v.SteamID],8)
 		end
@@ -576,7 +576,7 @@ function metaply:CPPIGetFriends()
 	if not self:IsValid() then return {} end
 	local ret = {}
 	local friends = (NADMOD.Users[self:SteamID()] or {Friends = {}}).Friends or {}
-	for _,v in pairs(player.GetAll()) do
+	for _, v in ipairs(player.GetAll()) do
 		if NADMOD.IsPPAdmin(v) or friends[v:SteamID()] then table.insert(ret,v) end
 	end
 	return ret

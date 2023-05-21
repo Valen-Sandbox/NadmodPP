@@ -4,6 +4,8 @@
 -- Menus designed after SpaceTech's Simple Prop Protection
 -- =================================
 local string_sub = string.sub
+local ipairs = ipairs
+local IsValid = IsValid
 
 if not NADMOD then
 	NADMOD = {}
@@ -20,7 +22,7 @@ net.Receive("nadmod_propowners", function()
 	for i = 1, net.ReadUInt(8) do
 		nameMap[i] = {SteamID = net.ReadString(), Name = net.ReadString()}
 	end
-	for i = 1, net.ReadUInt(32) do
+	for _ = 1, net.ReadUInt(32) do
 		local id, owner = net.ReadUInt(16), nameMap[net.ReadUInt(8)]
 		if owner.SteamID == "-" then Props[id] = nil PropNames[id] = nil
 		elseif owner.SteamID == "W" then PropNames[id] = "World"
@@ -165,35 +167,33 @@ function NADMOD.AdminPanel(Panel, runByNetReceive)
 		timer.Create("NADMOD.AdminPanelCheckFail",0.75,1,function()
 			nonadmin_help:SetText("Waiting for the server to say you're an admin...")
 		end)
-		if not NADMOD.PPConfig then
-			return
-		end
+		if not NADMOD.PPConfig then return end
 	else
 		timer.Remove("NADMOD.AdminPanelCheckFail")
 	end
 	Panel:SetName("NADMOD PP Admin Panel")
 
-	Panel:CheckBox(	"Main PP Power Switch", "npp_toggle")
-	Panel:CheckBox(	"Admins can touch anything", "npp_adminall")
-	local use_protection = Panel:CheckBox(	"Use (E) Protection", "npp_use")
+	Panel:CheckBox("Main PP Power Switch", "npp_toggle")
+	Panel:CheckBox("Admins can touch anything", "npp_adminall")
+	local use_protection = Panel:CheckBox("Use (E) Protection", "npp_use")
 	use_protection:SetTooltip("Stop nonfriends from entering vehicles, pushing buttons/doors")
 
 	local txt = Panel:Help("Autoclean Disconnected Players?")
 	txt:SetAutoStretchVertical(false)
 	txt:SetContentAlignment( TEXT_ALIGN_CENTER )
-	local autoclean_admins = Panel:CheckBox(	"Autoclean Admins", "npp_autocdpadmins")
+	local autoclean_admins = Panel:CheckBox("Autoclean Admins", "npp_autocdpadmins")
 	autoclean_admins:SetTooltip("Should Admin Props also be autocleaned?")
 	local autoclean_timer = Panel:NumSlider("Autoclean Timer", "npp_autocdp", 0, 1200, 0 )
 	autoclean_timer:SetTooltip("0 disables autocleaning")
-	Panel:Button(	"Apply Settings", "npp_apply")
+	Panel:Button("Apply Settings", "npp_apply")
 
-	local txt = Panel:Help("                     Cleanup Panel")
-	txt:SetContentAlignment( TEXT_ALIGN_CENTER )
-	txt:SetFont("DermaDefaultBold")
-	txt:SetAutoStretchVertical(false)
+	local pnlTxt = Panel:Help("                     Cleanup Panel")
+	pnlTxt:SetContentAlignment( TEXT_ALIGN_CENTER )
+	pnlTxt:SetFont("DermaDefaultBold")
+	pnlTxt:SetAutoStretchVertical(false)
 
 	local counts = {}
-	for _, v in pairs(NADMOD.PropOwners) do
+	for _, v in ipairs(NADMOD.PropOwners) do
 		counts[v] = (counts[v] or 0) + 1
 	end
 	local dccount = 0
@@ -232,7 +232,7 @@ end
 
 net.Receive("nadmod_ppfriends",function()
 	NADMOD.Friends = net.ReadTable()
-	for _,tar in ipairs(player.GetAll()) do
+	for _, tar in ipairs(player.GetAll()) do
 		CreateClientConVar("npp_friend_" .. tar:SteamID64bot(),NADMOD.Friends[tar:SteamID()] and "1" or "0", false, false)
 		RunConsoleCommand("npp_friend_" .. tar:SteamID64bot(),NADMOD.Friends[tar:SteamID()] and "1" or "0")
 	end
@@ -265,7 +265,7 @@ function NADMOD.ClientPanel(Panel)
 	if table.Count(Players) == 1 then
 		Panel:Help("No Other Players Are Online")
 	else
-		for _, tar in pairs(Players) do
+		for _, tar in ipairs(Players) do
 			if IsValid(tar) and tar ~= LocalPlayer() then
 				Panel:CheckBox(tar:Nick(), "npp_friend_" .. tar:SteamID64bot())
 			end
@@ -303,7 +303,7 @@ function CPPI:GetName() return "Nadmod Prop Protection" end
 function CPPI:GetVersion() return "" end
 function metaply:CPPIGetFriends() return {} end
 function metaent:CPPIGetOwner() return NADMOD.GetPropOwner(self) end
-function metaent:CPPICanTool(ply,mode) return NADMOD.PlayerCanTouch(ply,self) end
+function metaent:CPPICanTool(ply) return NADMOD.PlayerCanTouch(ply,self) end
 function metaent:CPPICanPhysgun(ply) return NADMOD.PlayerCanTouch(ply,self) end
 function metaent:CPPICanPickup(ply) return NADMOD.PlayerCanTouch(ply,self) end
 function metaent:CPPICanPunt(ply) return NADMOD.PlayerCanTouch(ply,self) end
