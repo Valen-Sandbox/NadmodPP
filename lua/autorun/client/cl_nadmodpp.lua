@@ -81,7 +81,7 @@ do
 	local string_Explode = string.Explode
 	local table_remove = table.remove
 
-	local nadmod_overlay_convar = CreateConVar("nadmod_overlay", 2, {FCVAR_NOTIFY, FCVAR_ARCHIVE, FCVAR_REPLICATED}, "0 - Disables NPP Overlay. 1 - Minimal overlay of just owner info. 2 - Includes model, entityID, class")
+	local nadmod_overlay_convar = CreateClientConVar("nadmod_overlay", 2, true, false, "0 - Disables NPP Overlay. 1 - Minimal overlay of just owner info. 2 - Includes model, entityID, class", 0, 2)
 	local font = "ChatFont"
 	local boxColor = Color(0, 0, 0, 150)
 	local textColor = Color(255, 255, 255, 255)
