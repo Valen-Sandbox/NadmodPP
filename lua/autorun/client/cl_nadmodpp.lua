@@ -80,11 +80,16 @@ do
 	local math_Max = math.Max
 	local string_Explode = string.Explode
 	local table_remove = table.remove
+	local CurTime = CurTime
+	local math_Round = math.Round
 
-	local nadmod_overlay_convar = CreateClientConVar("nadmod_overlay", 2, true, false, "0 - Disables NPP Overlay. 1 - Minimal overlay of just owner info. 2 - Includes model, entityID, class", 0, 2)
+	local nadmod_overlay_convar = CreateClientConVar("nadmod_overlay", 2, true, false, "0 - Disables NPP Overlay. 1 - Minimal overlay of just owner info. 2 - Includes model, entityID, class, speed", 0, 2)
 	local font = "ChatFont"
 	local boxColor = Color(0, 0, 0, 150)
 	local textColor = Color(255, 255, 255, 255)
+	local refreshDelay = 0.2
+	local refreshTime = CurTime() + refreshDelay
+	local text4 = ""
 
 	hook.Add("HUDPaint", "NADMOD.HUDPaint", function()
 		local nadmod_overlay_setting = nadmod_overlay_convar:GetInt()
@@ -102,17 +107,23 @@ do
 		local scrW = ScrW()
 		local scrH = ScrH() / 2 - 200
 
-		if nadmod_overlay_setting > 1 then
+		if nadmod_overlay_setting == 2 then
 			local text2 = "'" .. string_sub(table_remove(string_Explode("/", ent:GetModel() or "?")), 1, -5) .. "' [" .. ent:EntIndex() .. "]"
 			local text3 = ent:GetClass()
-			local w2,h2 = surface_GetTextSize(text2)
-			local w3,h3 = surface_GetTextSize(text3)
-			boxWidth = math_Max(Width,w2,w3) + 25
-			boxHeight = boxHeight + h2 + h3
+			if refreshTime < CurTime() + refreshDelay then
+				text4 = "Speed: " .. math_Round(ent:GetVelocity():Length()) .. " u/s"
+				refreshTime = CurTime() + refreshDelay
+			end
+			local w2, h2 = surface_GetTextSize(text2)
+			local w3, h3 = surface_GetTextSize(text3)
+			local w4, h4 = surface_GetTextSize(text4)
+			boxWidth = math_Max(Width, w2, w3) + 25
+			boxHeight = boxHeight + h2 + h3 + h4
 			draw_RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
 			draw_SimpleText(text, font, scrW - (Width / 2) - 20, scrH, textColor, 1, 1)
 			draw_SimpleText(text2, font, scrW - (w2 / 2) - 20, scrH + Height, textColor, 1, 1)
 			draw_SimpleText(text3, font, scrW - (w3 / 2) - 20, scrH + Height + h2, textColor, 1, 1)
+			draw_SimpleText(text4, font, scrW - (w4 / 2) - 20, scrH + Height + h2 + h3, textColor, 1, 1)
 		else
 			draw_RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
 			draw_SimpleText(text, font, scrW - (Width / 2) - 20, scrH, textColor, 1, 1)
