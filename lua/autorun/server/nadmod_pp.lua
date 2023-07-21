@@ -157,7 +157,7 @@ end
 
 function NADMOD.PlayerCanTouch(ply, ent)
 	-- If PP is off or the ent is worldspawn, let them touch it
-	if not tobool(NADMOD.PPConfig["toggle"]) then return true end
+	if not tobool(NADMOD.PPConfig["toggle"]) and ply:GetUserGroup() == "operator" then return true end
 	if ent:IsWorld() then return ent:GetClass() == "worldspawn" end
 	if not IsValid(ent) or not IsValid(ply) or ent:IsPlayer() or not ply:IsPlayer() then return false end
 
@@ -193,7 +193,7 @@ function NADMOD.PlayerCanTouch(ply, ent)
 	-- Ownerless props can be touched by all
 	if NADMOD.Props[index].Name == "O" then return true end
 	-- Admins can touch anyones props + world
-	if NADMOD.PPConfig["adminall"] and NADMOD.IsPPAdmin(ply) then return true end
+	if NADMOD.PPConfig["adminall"] and ply:GetUserGroup() == "operator" then return true end
 	-- Players can touch their own props and friends
 	if NADMOD.Props[index].SteamID == ply:SteamID() or NADMOD.IsFriendProp(ply, ent) then return true end
 

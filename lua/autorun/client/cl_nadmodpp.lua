@@ -43,7 +43,7 @@ end
 
 function NADMOD.PlayerCanTouch(ply, ent)
 	-- If PP is off or the ent is worldspawn, let them touch it
-	if not tobool(NADMOD.PPConfig["toggle"]) then return true end
+	if not tobool(NADMOD.PPConfig["toggle"]) and ply:GetUserGroup() == "operator" then return true end
 	if ent:IsWorld() then return ent:GetClass() == "worldspawn" end
 	if not IsValid(ent) or not IsValid(ply) or ent:IsPlayer() or not ply:IsPlayer() then return false end
 
@@ -55,7 +55,7 @@ function NADMOD.PlayerCanTouch(ply, ent)
 	-- Ownerless props can be touched by all
 	if PropNames[index] == "Ownerless" then return true end
 	-- Admins can touch anyones props + world
-	if NADMOD.PPConfig["adminall"] and NADMOD.IsPPAdmin(ply) then return true end
+	if NADMOD.PPConfig["adminall"] and ply:GetUserGroup() == "operator" then return true end
 	-- Players can touch their own props
 	local plySteam = ply:SteamID()
 	if Props[index] == plySteam then return true end
@@ -186,19 +186,21 @@ function NADMOD.AdminPanel(Panel, runByNetReceive)
 	end
 	Panel:SetName("NADMOD PP Admin Panel")
 
-	Panel:CheckBox("Main PP Power Switch", "npp_toggle")
-	Panel:CheckBox("Admins can touch anything", "npp_adminall")
-	local use_protection = Panel:CheckBox("Use (E) Protection", "npp_use")
-	use_protection:SetTooltip("Stop nonfriends from entering vehicles, pushing buttons/doors")
+	if LocalPlayer():GetUserGroup() == "operator" then
+		Panel:CheckBox("Main PP Power Switch", "npp_toggle")
+		Panel:CheckBox("Admins can touch anything", "npp_adminall")
+		local use_protection = Panel:CheckBox("Use (E) Protection", "npp_use")
+		use_protection:SetTooltip("Stop nonfriends from entering vehicles, pushing buttons/doors")
 
-	local txt = Panel:Help("Autoclean Disconnected Players?")
-	txt:SetAutoStretchVertical(false)
-	txt:SetContentAlignment( TEXT_ALIGN_CENTER )
-	local autoclean_admins = Panel:CheckBox("Autoclean Admins", "npp_autocdpadmins")
-	autoclean_admins:SetTooltip("Should Admin Props also be autocleaned?")
-	local autoclean_timer = Panel:NumSlider("Autoclean Timer", "npp_autocdp", 0, 1200, 0 )
-	autoclean_timer:SetTooltip("0 disables autocleaning")
-	Panel:Button("Apply Settings", "npp_apply")
+		local txt = Panel:Help("Autoclean Disconnected Players?")
+		txt:SetAutoStretchVertical(false)
+		txt:SetContentAlignment( TEXT_ALIGN_CENTER )
+		local autoclean_admins = Panel:CheckBox("Autoclean Admins", "npp_autocdpadmins")
+		autoclean_admins:SetTooltip("Should Admin Props also be autocleaned?")
+		local autoclean_timer = Panel:NumSlider("Autoclean Timer", "npp_autocdp", 0, 1200, 0 )
+		autoclean_timer:SetTooltip("0 disables autocleaning")
+		Panel:Button("Apply Settings", "npp_apply")
+	end
 
 	local pnlTxt = Panel:Help("                     Cleanup Panel")
 	pnlTxt:SetContentAlignment( TEXT_ALIGN_CENTER )
