@@ -7,6 +7,14 @@ local string_sub = string.sub
 local ipairs = ipairs
 local IsValid = IsValid
 
+-- March's trace function to make the overlay work with camera controllers
+local function AccurateEyetrace()
+    local pos = EyePos()
+    local ang = EyeAngles()
+    local trace = util.TraceLine{start = pos, endpos = pos + (ang:Forward() * (2^16))}
+    return trace
+end
+
 surface.CreateFont("nadmodOverlay", {font = "bahnschrift", size = 22, weight = 500, antialiasing = true})
 
 if not NADMOD then
@@ -96,7 +104,7 @@ do
 	hook.Add("HUDPaint", "NADMOD.HUDPaint", function()
 		local nadmod_overlay_setting = nadmod_overlay_convar:GetInt()
 		if nadmod_overlay_setting == 0 then return end
-		local tr = LocalPlayer():GetEyeTrace()
+		local tr = AccurateEyetrace()
 		if not tr.HitNonWorld then return end
 		local ent = tr.Entity
 		if not IsValid( ent ) or ent:IsPlayer() then return end
