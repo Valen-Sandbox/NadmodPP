@@ -9,10 +9,10 @@ local IsValid = IsValid
 
 -- March's trace function to make the overlay work with camera controllers
 local function AccurateEyetrace()
-    local pos = EyePos()
-    local ang = EyeAngles()
-    local trace = util.TraceLine{start = pos, endpos = pos + (ang:Forward() * (2^16))}
-    return trace
+	local pos = EyePos()
+	local ang = EyeAngles()
+	local trace = util.TraceLine{start = pos, endpos = pos + (ang:Forward() * (2 ^ 16))}
+	return trace
 end
 
 surface.CreateFont("nadmodOverlay", {font = "bahnschrift", size = 22, weight = 500, antialiasing = true})
@@ -136,7 +136,7 @@ do
 			draw_SimpleText(text4, font, scrW - (w4 / 2) - 20, scrH + textH + h2 + h3, textColor, 1, 1)
 		else
 			draw_RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
-			draw_SimpleText(text, font, scrW - (boxWidth / 2) - 20, scrH, textColor, 1, 1)
+			draw_SimpleText(text, font, scrW - (textW / 2) - 20, scrH, textColor, 1, 1)
 		end
 	end)
 end
