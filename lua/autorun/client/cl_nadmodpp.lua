@@ -136,7 +136,7 @@ do
 			draw_SimpleText(text4, font, scrW - (w4 / 2) - 20, scrH + textH + h2 + h3, textColor, 1, 1)
 		else
 			draw_RoundedBox(4, scrW - (boxWidth + 4), scrH - 16, boxWidth, boxHeight, boxColor)
-			draw_SimpleText(text, font, scrW - (Width / 2) - 20, scrH, textColor, 1, 1)
+			draw_SimpleText(text, font, scrW - (boxWidth / 2) - 20, scrH, textColor, 1, 1)
 		end
 	end)
 end
@@ -256,8 +256,8 @@ end
 net.Receive("nadmod_ppfriends",function()
 	NADMOD.Friends = net.ReadTable()
 	for _, tar in ipairs(player.GetAll()) do
-		CreateClientConVar("npp_friend_" .. tar:SteamID64bot(),NADMOD.Friends[tar:SteamID()] and "1" or "0", false, false)
-		RunConsoleCommand("npp_friend_" .. tar:SteamID64bot(),NADMOD.Friends[tar:SteamID()] and "1" or "0")
+		CreateClientConVar("npp_friend_" .. tar:SteamID64bot(), NADMOD.Friends[tar:SteamID()] and "1" or "0", false, false)
+		RunConsoleCommand("npp_friend_" .. tar:SteamID64bot(), NADMOD.Friends[tar:SteamID()] and "1" or "0")
 	end
 end)
 
