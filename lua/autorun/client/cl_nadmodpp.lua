@@ -30,16 +30,19 @@ local PropNames = NADMOD.PropNames
 net.Receive("nadmod_propowners", function()
 	local nameMap = {}
 	for i = 1, net.ReadUInt(8) do
-		nameMap[i] = {SteamID = net.ReadString(), Name = net.ReadString()}
+		nameMap[i] = {SteamID = net.ReadString()}
 	end
-	for _ = 1, net.ReadUInt(32) do
-		local id, owner = net.ReadUInt(16), nameMap[net.ReadUInt(8)]
+	for _ = 1, net.ReadUInt(MAX_EDICT_BITS) do
+		local id, owner = net.ReadUInt(MAX_EDICT_BITS), nameMap[net.ReadUInt(8)]
 		if owner.SteamID == "-" then Props[id] = nil PropNames[id] = nil
 		elseif owner.SteamID == "W" then PropNames[id] = "World"
 		elseif owner.SteamID == "O" then PropNames[id] = "Ownerless"
 		else
+			local ply = player.GetBySteamID(owner.SteamID)
+			if not IsValid(ply) then Props[id] = nil PropNames[id] = nil continue end
+
 			Props[id] = owner.SteamID
-			PropNames[id] = owner.Name
+			PropNames[id] = ply:Name()
 		end
 	end
 end)

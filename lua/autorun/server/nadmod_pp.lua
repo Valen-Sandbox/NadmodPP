@@ -98,15 +98,14 @@ function NADMOD.SendPropOwners(props, ply)
 			end
 			count = count + 1
 		end
-		net.WriteUInt(nameMapi,8)
+		net.WriteUInt(nameMapi, 8)
 		for i = 1, nameMapi do
 			net.WriteString(nameMap[i].SteamID)
-			net.WriteString(nameMap[i].Name)
 		end
-		net.WriteUInt(count,32)
+		net.WriteUInt(count, MAX_EDICT_BITS)
 		for k, v in pairs(props) do
-			net.WriteUInt(k,16)
-			net.WriteUInt(nameMap[v.SteamID],8)
+			net.WriteUInt(k, MAX_EDICT_BITS)
+			net.WriteUInt(nameMap[v.SteamID], 8)
 		end
 	if ply then net.Send(ply) else net.Broadcast() end
 end
