@@ -54,7 +54,7 @@ end
 
 function NADMOD.PlayerCanTouch(ply, ent)
 	-- If PP is off or the ent is worldspawn, let them touch it
-	if not tobool(NADMOD.PPConfig["toggle"]) and ply:GetUserGroup() == "operator" then return true end
+	if not tobool(NADMOD.PPConfig["toggle"]) and (ply:GetUserGroup() == "operator" or ply:IsListenServerHost()) then return true end
 	if ent:IsWorld() then return ent:GetClass() == "worldspawn" end
 	if not IsValid(ent) or not IsValid(ply) or ent:IsPlayer() or not ply:IsPlayer() then return false end
 
@@ -66,7 +66,7 @@ function NADMOD.PlayerCanTouch(ply, ent)
 	-- Ownerless props can be touched by all
 	if PropNames[index] == "Ownerless" then return true end
 	-- Admins can touch anyones props + world
-	if NADMOD.PPConfig["adminall"] and ply:GetUserGroup() == "operator" then return true end
+	if NADMOD.PPConfig["adminall"] and (ply:GetUserGroup() == "operator" or ply:IsListenServerHost()) then return true end
 	-- Players can touch their own props
 	local plySteam = ply:SteamID()
 	if Props[index] == plySteam then return true end
@@ -197,7 +197,7 @@ function NADMOD.AdminPanel(Panel, runByNetReceive)
 	end
 	Panel:SetName("NADMOD PP Admin Panel")
 
-	if LocalPlayer():GetUserGroup() == "operator" then
+	if (LocalPlayer():GetUserGroup() == "operator" or LocalPlayer():IsListenServerHost()) then
 		Panel:CheckBox("Main PP Power Switch", "npp_toggle")
 		Panel:CheckBox("Admins can touch anything", "npp_adminall")
 		local use_protection = Panel:CheckBox("Use (E) Protection", "npp_use")
