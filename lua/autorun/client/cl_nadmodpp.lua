@@ -178,23 +178,24 @@ concommand.Add("npp_apply",function()
 end)
 
 function NADMOD.AdminPanel(Panel, runByNetReceive)
-	if Panel and not NADMOD.AdminCPanel then
+	if Panel and not IsValid(NADMOD.AdminCPanel) then
 		NADMOD.AdminCPanel = Panel
 	end
 
-	Panel:ClearControls()
+	Panel:Clear()
 
 	local nonadmin_help = Panel:Help("")
 	nonadmin_help:SetAutoStretchVertical(false)
 	if not runByNetReceive then
 		RunConsoleCommand("npp_refreshconfig")
-		timer.Create("NADMOD.AdminPanelCheckFail",0.75,1,function()
+		timer.Create("NADMOD.AdminPanelCheckFail", 0.75, 1, function()
 			nonadmin_help:SetText("Waiting for the server to say you're an admin...")
 		end)
 		if not NADMOD.PPConfig then return end
 	else
 		timer.Remove("NADMOD.AdminPanelCheckFail")
 	end
+	nonadmin_help:Remove()
 	Panel:SetName("NADMOD PP Admin Panel")
 
 	if (LocalPlayer():GetUserGroup() == "operator" or LocalPlayer():IsListenServerHost()) then
@@ -205,7 +206,7 @@ function NADMOD.AdminPanel(Panel, runByNetReceive)
 
 		local txt = Panel:Help("Autoclean Disconnected Players?")
 		txt:SetAutoStretchVertical(false)
-		txt:SetContentAlignment( TEXT_ALIGN_CENTER )
+		txt:SetContentAlignment(TEXT_ALIGN_CENTER)
 		local autoclean_admins = Panel:CheckBox("Autoclean Admins", "npp_autocdpadmins")
 		autoclean_admins:SetTooltip("Should Admin Props also be autocleaned?")
 		local autoclean_timer = Panel:NumSlider("Autoclean Timer", "npp_autocdp", 0, 1200, 0 )
@@ -213,10 +214,11 @@ function NADMOD.AdminPanel(Panel, runByNetReceive)
 		Panel:Button("Apply Settings", "npp_apply")
 	end
 
-	local pnlTxt = Panel:Help("                     Cleanup Panel")
-	pnlTxt:SetContentAlignment( TEXT_ALIGN_CENTER )
+	local pnlTxt = Panel:Help("Cleanup Panel")
+	pnlTxt:SetContentAlignment(TEXT_ALIGN_CENTER)
 	pnlTxt:SetFont("DermaDefaultBold")
 	pnlTxt:SetAutoStretchVertical(false)
+	pnlTxt:DockMargin(Panel:GetWide() / 2.6, 0, 8, Panel:GetWide() / 2.6)
 
 	local counts = {}
 	for _, v in ipairs(NADMOD.PropOwners) do
@@ -275,21 +277,23 @@ end)
 
 function NADMOD.ClientPanel(Panel)
 	RunConsoleCommand("npp_refreshfriends")
-	Panel:ClearControls()
-	if not NADMOD.ClientCPanel then NADMOD.ClientCPanel = Panel end
+	Panel:Clear()
+	if not IsValid(NADMOD.ClientCPanel) then NADMOD.ClientCPanel = Panel end
 	Panel:SetName("NADMOD - Client Panel")
 
 	Panel:Button("Cleanup Props", "nadmod_cleanupprops")
 	Panel:Button("Clear Clientside Ragdolls", "nadmod_cleanclragdolls")
 
-	local txt = Panel:Help("                     Friends Panel")
-	txt:SetContentAlignment( TEXT_ALIGN_CENTER )
+	local txt = Panel:Help("Friends Panel")
+	txt:SetContentAlignment(TEXT_ALIGN_CENTER)
 	txt:SetFont("DermaDefaultBold")
 	txt:SetAutoStretchVertical(false)
+	txt:DockMargin(Panel:GetWide() / 2.6, 0, 8, Panel:GetWide() / 2.6)
 
 	local Players = player.GetAll()
 	if table.Count(Players) == 1 then
-		Panel:Help("No Other Players Are Online")
+		local plyTxt = Panel:Help("No Other Players Are Online")
+		plyTxt:DockMargin(Panel:GetWide() / 3.15, 0, 8, Panel:GetWide() / 3.15)
 	else
 		for _, tar in ipairs(Players) do
 			if IsValid(tar) and tar ~= LocalPlayer() then
@@ -301,10 +305,10 @@ function NADMOD.ClientPanel(Panel)
 end
 
 function NADMOD.SpawnMenuOpen()
-	if NADMOD.AdminCPanel then
+	if IsValid(NADMOD.AdminCPanel) then
 		NADMOD.AdminPanel(NADMOD.AdminCPanel)
 	end
-	if NADMOD.ClientCPanel then
+	if IsValid(NADMOD.ClientCPanel) then
 		NADMOD.ClientPanel(NADMOD.ClientCPanel)
 	end
 end

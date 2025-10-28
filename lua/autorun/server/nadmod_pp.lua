@@ -289,6 +289,9 @@ function NADMOD.PlayerMakePropOwner(ply,ent)
 	ent.SPPOwner = ply
 	NADMOD.RefreshOwners()
 end
+hook.Add("PlayerSpawnedSENT", "NADMOD.PlayerSpawnedSENT", NADMOD.PlayerMakePropOwner)
+hook.Add("PlayerSpawnedVehicle", "NADMOD.PlayerSpawnedVehicle", NADMOD.PlayerMakePropOwner)
+hook.Add("PlayerSpawnedSWEP", "NADMOD.PlayerSpawnedSWEP", NADMOD.PlayerMakePropOwner)
 
 -- Hook into the cleanup and sbox-limit adding functions to catch most props
 if cleanup then
@@ -307,9 +310,13 @@ if metaply.AddCount then
 		backupAddCount(self, enttype, ent)
 	end
 end
-hook.Add("PlayerSpawnedSENT", "NADMOD.PlayerSpawnedSENT", NADMOD.PlayerMakePropOwner)
-hook.Add("PlayerSpawnedVehicle", "NADMOD.PlayerSpawnedVehicle", NADMOD.PlayerMakePropOwner)
-hook.Add("PlayerSpawnedSWEP", "NADMOD.PlayerSpawnedSWEP", NADMOD.PlayerMakePropOwner)
+if metaent.SetCreator then
+	local backupSetCreator = metaent.SetCreator
+	function metaent:SetCreator(ply)
+		NADMOD.PlayerMakePropOwner(ply, self)
+		backupSetCreator(self, ply)
+	end
+end
 
 function metaent:CPPISetOwnerless(bool)
 	if not IsValid(self) or self:IsPlayer() then return end
@@ -357,9 +364,9 @@ function NADMOD.WorldOwner()
 	end
 	print("Nadmod Prop Protection: " .. WorldEnts .. " props belong to world")
 end
-if CurTime() < 5 then timer.Create("NADMOD.PPFindWorldProps",7,1,NADMOD.WorldOwner) end
+if CurTime() < 5 then timer.Create("NADMOD.PPFindWorldProps", 7, 1, NADMOD.WorldOwner) end
 hook.Add("PostCleanupMap","NADMOD.MapCleaned",function()
-	timer.Simple(0,function() NADMOD.WorldOwner() end)
+	timer.Simple(0, function() NADMOD.WorldOwner() end)
 end)
 
 function NADMOD.EntityRemoved(ent)
