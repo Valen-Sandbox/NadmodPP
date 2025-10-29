@@ -194,8 +194,9 @@ function NADMOD.AdminPanel(Panel, runByNetReceive)
 		if not NADMOD.PPConfig then return end
 	else
 		timer.Remove("NADMOD.AdminPanelCheckFail")
+		nonadmin_help:SetVisible(false)
 	end
-	nonadmin_help:Remove()
+
 	Panel:SetName("NADMOD PP Admin Panel")
 
 	if (LocalPlayer():GetUserGroup() == "operator" or LocalPlayer():IsListenServerHost()) then
