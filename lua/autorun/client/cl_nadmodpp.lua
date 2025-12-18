@@ -11,7 +11,7 @@ local IsValid = IsValid
 local function AccurateEyetrace()
 	local pos = EyePos()
 	local ang = EyeAngles()
-	local trace = util.TraceLine{start = pos, endpos = pos + (ang:Forward() * (2 ^ 16))}
+	local trace = util.TraceLine{start = pos, endpos = pos + (ang:Forward() * (2 ^ 16)), filter = LocalPlayer()}
 	return trace
 end
 
