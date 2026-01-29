@@ -132,6 +132,11 @@ function NADMOD.PPInitPlayer(ply)
 end
 hook.Add("PlayerInitialSpawn", "NADMOD.PPInitPlayer", NADMOD.PPInitPlayer)
 
+net.Receive("nadmod_propowners", function(_, ply)
+	if not IsValid(ply) then return end
+	NADMOD.SendPropOwners(NADMOD.Props, ply)
+end)
+
 function NADMOD.PPOwnWeapons(ply)
 	timer.Create("NADMOD.PPOwnWeapons", 0.2, 1, function()
 		if not IsValid(ply) then return end

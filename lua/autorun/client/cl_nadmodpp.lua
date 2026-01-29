@@ -47,6 +47,11 @@ net.Receive("nadmod_propowners", function()
 	end
 end)
 
+hook.Add("InitPostEntity", "NADMOD.RequestPropOwners", function()
+	net.Start("nadmod_propowners")
+	net.SendToServer()
+end)
+
 function NADMOD.GetPropOwner(ent)
 	local id = Props[ent:EntIndex()]
 	return id and player.GetBySteamID(id)
